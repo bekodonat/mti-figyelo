@@ -1,0 +1,9 @@
+.DS_Store
+~$*
+.env*
+*.pem
+*.key
+*credentials*.json
+.venv/
+__pycache__/
+
