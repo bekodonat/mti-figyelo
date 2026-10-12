@@ -94,8 +94,7 @@ def fetch_rss_feed(rss_url: str) -> List[Dict[str, Any]]:
                 "published_at": pub_date,
             })
 
-        # Extra fallback: If RSS feed is short (like 24.hu or blikk with only 10-15 items),
-        # crawl the front page for extra recent article links to ensure full coverage
+        # Extra fallback: If RSS feed is short or stale, crawl front page for all portals with short feeds
         if "24.hu" in rss_url:
             extra_urls = discover_homepage_articles("https://24.hu", r"24\.hu/[a-z0-9\-]+/\d{4}/\d{2}/\d{2}/")
             existing_feed_urls = {e["url"] for e in entries}
@@ -104,6 +103,18 @@ def fetch_rss_feed(rss_url: str) -> List[Dict[str, Any]]:
                     entries.append({"url": u, "title_hint": "", "published_at": None})
         elif "blikk.hu" in rss_url:
             extra_urls = discover_homepage_articles("https://www.blikk.hu", r"blikk\.hu/[a-z0-9\-]+/[a-z0-9\-]+/\w+")
+            existing_feed_urls = {e["url"] for e in entries}
+            for u in extra_urls:
+                if u not in existing_feed_urls:
+                    entries.append({"url": u, "title_hint": "", "published_at": None})
+        elif "nepszava.hu" in rss_url:
+            extra_urls = discover_homepage_articles("https://nepszava.hu", r"nepszava\.hu/\d{5,}_")
+            existing_feed_urls = {e["url"] for e in entries}
+            for u in extra_urls:
+                if u not in existing_feed_urls:
+                    entries.append({"url": u, "title_hint": "", "published_at": None})
+        elif "168.hu" in rss_url:
+            extra_urls = discover_homepage_articles("https://168.hu", r"168\.hu/[a-z0-9\-]+/[a-z0-9\-]+-\d+")
             existing_feed_urls = {e["url"] for e in entries}
             for u in extra_urls:
                 if u not in existing_feed_urls:
