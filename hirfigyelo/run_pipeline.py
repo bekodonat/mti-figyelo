@@ -43,7 +43,7 @@ def get_pipeline_summary() -> dict:
         articles_mti_cited = conn.execute("SELECT COUNT(*) FROM articles WHERE has_mti_citation = 1").fetchone()[0]
         matches_total = conn.execute("SELECT COUNT(*) FROM matches").fetchone()[0]
         last_updated_row = conn.execute("""
-            SELECT MAX(ts) FROM (
+            SELECT datetime(MAX(ts), 'localtime') FROM (
                 SELECT MAX(scraped_at) as ts FROM articles
                 UNION ALL
                 SELECT MAX(scraped_at) as ts FROM mti_news
