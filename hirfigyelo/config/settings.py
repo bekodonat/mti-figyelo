@@ -20,6 +20,8 @@ OUTLETS_CONFIG_PATH = CONFIG_DIR / "outlets.json"
 # MTI Settings
 MTI_BASE_URL = "https://mti.hu"
 MTI_HOT_WINDOW_HOURS = 12
+MTI_USERNAME = os.environ.get("MTI_USERNAME", "bekodonat44@gmail.com")
+MTI_PASSWORD = os.environ.get("MTI_PASSWORD", "kBjngu2y2WQnv3A")
 
 # HTTP Settings
 DEFAULT_HEADERS = {
