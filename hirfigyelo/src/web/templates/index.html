@@ -26,7 +26,11 @@
                 </div>
             </div>
             
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3">
+                <div class="hidden sm:flex items-center space-x-2 text-xs text-slate-300 bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2 shadow-inner">
+                    <i class="fa-regular fa-clock text-indigo-400"></i>
+                    <span>Utolsó frissítés: <strong class="text-white font-medium ml-1" id="lastUpdatedBadge">{{ stats.last_updated }}</strong></span>
+                </div>
                 <button id="runPipelineBtn" onclick="triggerPipeline()" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 transition shadow-sm hover:shadow-indigo-500/20 active:scale-95">
                     <i id="pipelineIcon" class="fa-solid fa-arrows-rotate mr-2"></i>
                     <span>Pipeline Frissítése Most</span>
@@ -95,16 +99,32 @@
 
         <!-- TAB 1: Clusters & Mutations -->
         <div id="tab-clusters" class="space-y-6">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="text-base font-semibold text-white">Azonosított MTI Hírcsaládok</h2>
                     <p class="text-xs text-slate-400">Az MTI nyers közleményei és az azokra épülő portálcikkek egymás mellé állítva.</p>
                 </div>
+
+                <!-- Sorter Dropdown -->
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-xs text-slate-400 flex items-center">
+                        <i class="fa-solid fa-arrow-down-wide-short mr-1.5 text-indigo-400"></i> Rendezés:
+                    </span>
+                    <select id="clusterSortSelect" onchange="sortClusters(this.value)" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm cursor-pointer">
+                        <option value="relevance">⭐ Legrelevánsabb (Újabb + legtöbb hivatkozás)</option>
+                        <option value="matches_desc">🔥 Legtöbb hivatkozás</option>
+                        <option value="newest">🕒 Legújabb MTI hír elöl</option>
+                        <option value="oldest">🕰️ Legrégebbi MTI hír elöl</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="space-y-4">
+            <div id="clustersListContainer" class="space-y-4">
                 {% for cluster in clusters %}
-                <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl overflow-hidden">
+                <div class="cluster-card bg-slate-800/40 border border-slate-700/60 rounded-xl overflow-hidden transition"
+                     data-relevance="{{ cluster.relevance_score }}"
+                     data-matches="{{ cluster.matches|length }}"
+                     data-pub="{{ cluster.mti.published_at }}">
                     <!-- Root MTI Header -->
                     <div class="bg-slate-800/90 px-6 py-4 border-b border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-2">
                         <div class="space-y-1">
@@ -408,6 +428,36 @@
             document.getElementById('articleModal').classList.add('hidden');
         }
 
+        function sortClusters(criterion) {
+            const container = document.getElementById('clustersListContainer');
+            if (!container) return;
+            const cards = Array.from(container.querySelectorAll('.cluster-card'));
+
+            cards.sort((a, b) => {
+                if (criterion === 'relevance') {
+                    const relA = parseFloat(a.getAttribute('data-relevance') || 0);
+                    const relB = parseFloat(b.getAttribute('data-relevance') || 0);
+                    return relB - relA;
+                } else if (criterion === 'matches_desc') {
+                    const matchA = parseInt(a.getAttribute('data-matches') || 0, 10);
+                    const matchB = parseInt(b.getAttribute('data-matches') || 0, 10);
+                    if (matchB !== matchA) return matchB - matchA;
+                    return (b.getAttribute('data-pub') || '').localeCompare(a.getAttribute('data-pub') || '');
+                } else if (criterion === 'newest') {
+                    const pubA = a.getAttribute('data-pub') || '';
+                    const pubB = b.getAttribute('data-pub') || '';
+                    return pubB.localeCompare(pubA);
+                } else if (criterion === 'oldest') {
+                    const pubA = a.getAttribute('data-pub') || '';
+                    const pubB = b.getAttribute('data-pub') || '';
+                    return pubA.localeCompare(pubB);
+                }
+                return 0;
+            });
+
+            cards.forEach(card => container.appendChild(card));
+        }
+
         async function triggerPipeline() {
             const btn = document.getElementById('runPipelineBtn');
             const icon = document.getElementById('pipelineIcon');
@@ -424,6 +474,8 @@
                     document.getElementById('statMtiCited').innerText = data.stats.articles_mti_cited;
                     document.getElementById('statMti').innerText = data.stats.mti_total;
                     document.getElementById('statMatches').innerText = data.stats.matches_total;
+                    const badge = document.getElementById('lastUpdatedBadge');
+                    if (badge && data.stats.last_updated) badge.innerText = data.stats.last_updated;
                     alert("A pipeline sikeresen lefutott, a legfrissebb hírek betöltve!");
                     location.reload();
                 } else {

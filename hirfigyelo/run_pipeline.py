@@ -42,6 +42,14 @@ def get_pipeline_summary() -> dict:
         articles_total = conn.execute("SELECT COUNT(*) FROM articles").fetchone()[0]
         articles_mti_cited = conn.execute("SELECT COUNT(*) FROM articles WHERE has_mti_citation = 1").fetchone()[0]
         matches_total = conn.execute("SELECT COUNT(*) FROM matches").fetchone()[0]
+        last_updated_row = conn.execute("""
+            SELECT MAX(ts) FROM (
+                SELECT MAX(scraped_at) as ts FROM articles
+                UNION ALL
+                SELECT MAX(scraped_at) as ts FROM mti_news
+            )
+        """).fetchone()
+        last_updated = last_updated_row[0] if last_updated_row and last_updated_row[0] else None
 
     return {
         "outlets": outlets_count,
@@ -50,6 +58,7 @@ def get_pipeline_summary() -> dict:
         "articles_total": articles_total,
         "articles_mti_cited": articles_mti_cited,
         "matches_total": matches_total,
+        "last_updated": last_updated or "Még nem futott",
     }
 
 

@@ -36,6 +36,9 @@ def index():
     """
     mti_clusters = conn.execute(clusters_query).fetchall()
 
+    from dateutil import parser as date_parser
+    now = datetime.now()
+
     clusters_data = []
     for m in mti_clusters:
         # Fetch matching articles for this MTI story
@@ -54,10 +57,30 @@ def index():
             (m["mti_id"],),
         ).fetchall()
 
+        # Calculate age in hours for relevance ranking
+        try:
+            pub_dt = date_parser.parse(m["mti_pub"])
+            age_hours = max(0.1, (now - pub_dt).total_seconds() / 3600.0)
+        except Exception:
+            age_hours = 24.0
+
+        match_count = len(matches)
+        # Relevance: high match count + fresh news (recency decay)
+        # Each match gives 100 points, each hour elapsed deducts 1.5 points
+        if match_count > 0:
+            relevance_score = round((match_count * 100.0) - (age_hours * 1.5), 2)
+        else:
+            relevance_score = round(-100.0 - age_hours, 2)
+
         clusters_data.append({
             "mti": dict(m),
             "matches": [dict(match) for match in matches],
+            "relevance_score": relevance_score,
+            "age_hours": round(age_hours, 1),
         })
+
+    # Default sort by relevance (újabb + legtöbb hivatkozás)
+    clusters_data.sort(key=lambda c: c["relevance_score"], reverse=True)
 
     # 2. Fetch outlets for filter dropdown and stats
     outlets = conn.execute("SELECT id, name, slug FROM outlets ORDER BY name ASC").fetchall()
