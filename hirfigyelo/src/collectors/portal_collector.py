@@ -18,14 +18,22 @@ from src.db.database import get_db, get_active_outlets, get_existing_article_url
 
 logger = logging.getLogger("portal_collector")
 
-# Robust Hungarian MTI citation patterns
+# Comprehensive Hungarian MTI citation patterns
 MTI_PATTERNS = [
-    re.compile(r"\((?:MTI|mti)\)"),                           # (MTI)
-    re.compile(r"Forrás:\s*(?:[^\n,]+,\s*)?MTI\b", re.IGNORECASE),  # Forrás: MTI / Forrás: Index, MTI
-    re.compile(r"(?:–|-)\s*MTI\b"),                          # – MTI
-    re.compile(r"(?:közölte|írta|jelentette|tudósított|tájékoztatott)\s+(?:az|a)\s+(?:Magyar Távirati Iroda|MTI)\b", re.IGNORECASE),
-    re.compile(r"(?:az\s+)?MTI\s+(?:híradása|tudósítása|értesülései|jelentése|közleménye)\s+szerint", re.IGNORECASE),
-    re.compile(r"(?:szerző|fotó|forrás)\s*:\s*MTI\b", re.IGNORECASE),
+    re.compile(r"\((?:via\s+)?mti\)", re.IGNORECASE),
+    re.compile(r"(?:–|-)\s*mti\b", re.IGNORECASE),
+    re.compile(r"forrás:\s*[^,\n\.]*mti\b", re.IGNORECASE),
+    re.compile(r"(?:szerző|fotó|forrás|nyitókép|borítókép|kép)\s*:\s*[^,\n\.]*mti\b", re.IGNORECASE),
+    re.compile(
+        r"(?:közölte|írta|írja|jelentette|tudósított|tájékoztatott|tudatta|számolt be|értesült|fogalmazott|emlékeztet|megjegyzi)\s+(?:az|a)\s+(?:magyar távirati iroda|mti)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:az\s+)?mti\s+(?:híradása|tudósítása|értesülései|jelentése|közleménye|információi|megkeresésére|adatai|szerint)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"(?:az\s+)?mti-(?:nek|hez|vel|re|nél)\b", re.IGNORECASE),
+    re.compile(r"\bmti\b", re.IGNORECASE),  # Fallback: standalone word MTI
 ]
 
 
@@ -37,8 +45,8 @@ def detect_mti_citation(text: str) -> Tuple[bool, Optional[str]]:
     for pattern in MTI_PATTERNS:
         match = pattern.search(text)
         if match:
-            start = max(0, match.start() - 40)
-            end = min(len(text), match.end() + 40)
+            start = max(0, match.start() - 35)
+            end = min(len(text), match.end() + 35)
             excerpt = text[start:end].replace("\n", " ").strip()
             return True, f"...{excerpt}..."
 

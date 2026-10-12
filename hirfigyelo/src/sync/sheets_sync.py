@@ -135,7 +135,7 @@ def sync_to_google_sheet_webhook(webhook_url: str) -> bool:
     payload = get_sheets_payload()
     try:
         logger.info(f"Adatok küldése a Google Sheet Webhookra: {webhook_url[:50]}...")
-        with httpx.Client(timeout=60.0) as client:
+        with httpx.Client(timeout=60.0, follow_redirects=True) as client:
             response = client.post(webhook_url, json=payload)
             if response.status_code == 200:
                 logger.info("Google Sheet szinkronizáció sikeres!")

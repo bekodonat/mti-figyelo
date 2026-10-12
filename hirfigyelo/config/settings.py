@@ -30,7 +30,8 @@ DEFAULT_HEADERS = {
 REQUEST_TIMEOUT = 12.0
 
 # Matching Engine Settings
-SIMILARITY_THRESHOLD = 0.55  # Minimum TF-IDF cosine similarity to consider a match
+# Ha a cikk NEM hivatkozik MTI-re, szigorúbb (0.75) hasonlóság kell a téves párosítások elkerülésére
+SIMILARITY_THRESHOLD = 0.75
 
 # Google Sheet Sync Settings
 GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1h1Or2v-4wayuVQDSO6DjNp90pjJZJvVb08xE9c9b_XY/edit?usp=sharing"
