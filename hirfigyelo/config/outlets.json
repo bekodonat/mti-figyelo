@@ -1,0 +1,107 @@
+[
+  {
+    "slug": "index",
+    "name": "Index",
+    "domain": "index.hu",
+    "rss_url": "https://index.hu/24ora/rss/",
+    "active": true
+  },
+  {
+    "slug": "24hu",
+    "name": "24.hu",
+    "domain": "24.hu",
+    "rss_url": "https://24.hu/feed/",
+    "active": true
+  },
+  {
+    "slug": "telex",
+    "name": "Telex",
+    "domain": "telex.hu",
+    "rss_url": "https://telex.hu/rss",
+    "active": true
+  },
+  {
+    "slug": "portfolio",
+    "name": "Portfolio",
+    "domain": "portfolio.hu",
+    "rss_url": "https://www.portfolio.hu/rss/all.xml",
+    "active": true
+  },
+  {
+    "slug": "blikk",
+    "name": "Blikk",
+    "domain": "blikk.hu",
+    "rss_url": "https://www.blikk.hu/rss",
+    "active": true
+  },
+  {
+    "slug": "origo",
+    "name": "Origo",
+    "domain": "origo.hu",
+    "rss_url": "https://www.origo.hu/contentpartner/rss/origoall/origo.xml",
+    "active": true
+  },
+  {
+    "slug": "hvg",
+    "name": "HVG",
+    "domain": "hvg.hu",
+    "rss_url": "https://hvg.hu/rss",
+    "active": true
+  },
+  {
+    "slug": "444",
+    "name": "444",
+    "domain": "444.hu",
+    "rss_url": "https://444.hu/feed",
+    "active": true
+  },
+  {
+    "slug": "borsonline",
+    "name": "Bors",
+    "domain": "borsonline.hu",
+    "rss_url": "https://www.borsonline.hu/rss",
+    "active": true
+  },
+  {
+    "slug": "magyarnemzet",
+    "name": "Magyar Nemzet",
+    "domain": "magyarnemzet.hu",
+    "rss_url": "https://magyarnemzet.hu/feed/",
+    "active": true
+  },
+  {
+    "slug": "vg",
+    "name": "Világgazdaság",
+    "domain": "vg.hu",
+    "rss_url": "https://www.vg.hu/feed/",
+    "active": true
+  },
+  {
+    "slug": "infostart",
+    "name": "Infostart",
+    "domain": "infostart.hu",
+    "rss_url": "https://infostart.hu/24ora/rss/",
+    "active": true
+  },
+  {
+    "slug": "magyarhirlap",
+    "name": "Magyar Hírlap",
+    "domain": "magyarhirlap.hu",
+    "rss_url": "https://www.magyarhirlap.hu/rss",
+    "active": true
+  },
+  {
+    "slug": "nepszava",
+    "name": "Népszava",
+    "domain": "nepszava.hu",
+    "rss_url": "https://nepszava.hu/feed/",
+    "active": true
+  },
+  {
+    "slug": "168hu",
+    "name": "168.hu",
+    "domain": "168.hu",
+    "rss_url": "https://168.hu/rss",
+    "active": true
+  }
+]

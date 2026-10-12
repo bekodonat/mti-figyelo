@@ -5,5 +5,9 @@
 *.key
 *credentials*.json
 .venv/
+hirfigyelo/.venv/
+hirfigyelo/data/sheets_export/
+hirfigyelo/logs/
 __pycache__/
+hirfigyelo/**/__pycache__/
 
