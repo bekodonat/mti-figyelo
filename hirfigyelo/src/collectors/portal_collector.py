@@ -8,6 +8,8 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import feedparser
 import httpx
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 import trafilatura
 from dateutil import parser as date_parser
 
@@ -91,10 +93,45 @@ def fetch_rss_feed(rss_url: str) -> List[Dict[str, Any]]:
                 "title_hint": getattr(entry, "title", ""),
                 "published_at": pub_date,
             })
+
+        # Extra fallback: If RSS feed is short (like 24.hu or blikk with only 10-15 items),
+        # crawl the front page for extra recent article links to ensure full coverage
+        if "24.hu" in rss_url:
+            extra_urls = discover_homepage_articles("https://24.hu", r"24\.hu/[a-z0-9\-]+/\d{4}/\d{2}/\d{2}/")
+            existing_feed_urls = {e["url"] for e in entries}
+            for u in extra_urls:
+                if u not in existing_feed_urls:
+                    entries.append({"url": u, "title_hint": "", "published_at": None})
+        elif "blikk.hu" in rss_url:
+            extra_urls = discover_homepage_articles("https://www.blikk.hu", r"blikk\.hu/[a-z0-9\-]+/[a-z0-9\-]+/\w+")
+            existing_feed_urls = {e["url"] for e in entries}
+            for u in extra_urls:
+                if u not in existing_feed_urls:
+                    entries.append({"url": u, "title_hint": "", "published_at": None})
+
         return entries
     except Exception as e:
         logger.error(f"Hiba az RSS feldolgozásakor ({rss_url}): {e}")
         return []
+
+
+def discover_homepage_articles(base_url: str, pattern: str) -> List[str]:
+    """Crawl a portal's front page to find latest articles matching a regex pattern."""
+    found = []
+    try:
+        resp = httpx.get(base_url, headers=DEFAULT_HEADERS, timeout=REQUEST_TIMEOUT, follow_redirects=True)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            for a in soup.find_all("a", href=True):
+                href = a["href"]
+                if href.startswith("/"):
+                    href = urljoin(base_url, href)
+                if re.search(pattern, href):
+                    if href not in found:
+                        found.append(href)
+    except Exception as e:
+        logger.warning(f"Nem sikerült a címlap cikkeinek gyűjtése ({base_url}): {e}")
+    return found
 
 
 def fetch_and_extract_article(
