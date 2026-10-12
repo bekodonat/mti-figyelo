@@ -3,7 +3,7 @@ name: Óránkénti Hírfigyelő és Google Sheet Szinkronizáció
 on:
   schedule:
     # Minden órában, 15 perckor automatikusan lefut a felhőben
-    - cron: '15 * * * *'
+    - cron: '25 * * * *'
   workflow_dispatch: # Kézi indítás lehetősége a GitHub webes felületéről
 
 permissions:
