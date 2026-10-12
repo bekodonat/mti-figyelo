@@ -145,6 +145,33 @@ def discover_homepage_articles(base_url: str, pattern: str) -> List[str]:
     return found
 
 
+def extract_html_published_date(html_text: str) -> Optional[str]:
+    """Extract exact published timestamp from HTML meta tags or time element."""
+    if not html_text:
+        return None
+    try:
+        soup = BeautifulSoup(html_text, "html.parser")
+        for meta in soup.find_all("meta"):
+            prop = (meta.get("property") or meta.get("name") or "").lower()
+            if prop in ["article:published_time", "pubdate", "publishdate", "datepublished", "parsely-pub-date"]:
+                content = meta.get("content")
+                if content:
+                    try:
+                        return date_parser.parse(content).strftime("%Y-%m-%d %H:%M:%S")
+                    except Exception:
+                        pass
+        for t in soup.find_all("time"):
+            dt_val = t.get("datetime")
+            if dt_val:
+                try:
+                    return date_parser.parse(dt_val).strftime("%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return None
+
+
 def fetch_and_extract_article(
     outlet_id: int,
     url: str,
@@ -174,8 +201,10 @@ def fetch_and_extract_article(
         if not title or not raw_text:
             return None
 
-        # Resolve date
-        pub_date = published_hint
+        # Resolve date: Priority 1: exact meta tag from HTML, Priority 2: hint, Priority 3: trafilatura date
+        pub_date = extract_html_published_date(html)
+        if not pub_date:
+            pub_date = published_hint
         if not pub_date and data.get("date"):
             try:
                 pub_date = date_parser.parse(data["date"]).strftime("%Y-%m-%d %H:%M:%S")
