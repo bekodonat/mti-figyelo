@@ -88,7 +88,35 @@ def get_sheets_payload() -> Dict[str, List[List[Any]]]:
             full_text,
         ])
 
-    # Tab 3: Portál Statisztikák
+    # Tab 3: MTI Hírek (Önálló fül a gyűjtött MTI közleményeknek)
+    mti_rows = [
+        [
+            "MTI_ID", "Cím", "Lead", "Megjelenés_Ideje", "Frissült", 
+            "Hot_12h", "Szószám", "URL", "Teljes_Szöveg"
+        ]
+    ]
+    cursor = conn.execute(
+        """
+        SELECT id, title, lead, published_at, is_updated, is_hot, word_count, url, content_raw
+        FROM mti_news
+        ORDER BY published_at DESC
+        """
+    )
+    for r in cursor.fetchall():
+        full_text = (r["content_raw"] or "").replace("\r", " ").replace("\n", " ").strip()
+        mti_rows.append([
+            r["id"],
+            r["title"],
+            r["lead"] or "",
+            r["published_at"] or "",
+            "IGEN" if r["is_updated"] else "NEM",
+            "IGEN" if r["is_hot"] else "NEM",
+            r["word_count"] or 0,
+            r["url"],
+            full_text,
+        ])
+
+    # Tab 4: Portál Statisztikák
     stats_rows = [
         ["Portál", "Összes_Cikk", "MTI_Idézéses_Cikk", "Párosított_Családok", "MTI_Arány_%", "Átlagos_Késleltetés_Perc"]
     ]
@@ -125,6 +153,7 @@ def get_sheets_payload() -> Dict[str, List[List[Any]]]:
 
     return {
         "Hircsaladok_Mutaciok": matches_rows,
+        "MTI_Hirek": mti_rows,
         "Osszes_Cikk": articles_rows,
         "Portal_Statisztikak": stats_rows,
     }
