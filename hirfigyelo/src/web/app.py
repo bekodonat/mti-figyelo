@@ -12,6 +12,26 @@ from run_pipeline import main as run_pipeline_cycle, get_pipeline_summary
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 
+@app.template_filter("format_latency")
+def format_latency_filter(mins):
+    if mins is None:
+        return "-"
+    try:
+        mins = int(mins)
+    except (ValueError, TypeError):
+        return "-"
+    if mins < 0:
+        return "-"
+    hours = mins // 60
+    rem_mins = mins % 60
+    if hours > 0 and rem_mins > 0:
+        return f"+{hours} óra {rem_mins} perc"
+    elif hours > 0:
+        return f"+{hours} óra"
+    else:
+        return f"+{rem_mins} perc"
+
+
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row

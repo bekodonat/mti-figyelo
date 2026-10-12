@@ -191,7 +191,7 @@
                                     <div class="bg-indigo-500 h-full" style="width: {{ match.similarity_score * 100 }}%"></div>
                                 </div>
                                 <div class="text-right pl-2">
-                                    <div class="text-xs font-bold text-amber-400">+{{ match.latency_minutes }} perc</div>
+                                    <div class="text-xs font-bold text-amber-400">{{ match.latency_minutes|format_latency }}</div>
                                     <div class="text-[10px] text-slate-500">Reakcióidő</div>
                                 </div>
                             </div>
@@ -297,12 +297,8 @@
                                     0%
                                     {% endif %}
                                 </td>
-                                <td class="px-6 py-3 text-right text-amber-400">
-                                    {% if row.avg_latency %}
-                                    +{{ row.avg_latency|int }} perc
-                                    {% else %}
-                                    -
-                                    {% endif %}
+                                <td class="px-6 py-3 text-right text-amber-400 font-medium">
+                                    {{ row.avg_latency|format_latency }}
                                 </td>
                             </tr>
                             {% endfor %}

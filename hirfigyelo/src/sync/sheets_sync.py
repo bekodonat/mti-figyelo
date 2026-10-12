@@ -13,6 +13,25 @@ from config.settings import DB_PATH, BASE_DIR
 logger = logging.getLogger("sheets_sync")
 
 
+def format_latency_hu(mins) -> str:
+    if mins is None:
+        return "-"
+    try:
+        mins = int(mins)
+    except (ValueError, TypeError):
+        return "-"
+    if mins < 0:
+        return "-"
+    hours = mins // 60
+    rem_mins = mins % 60
+    if hours > 0 and rem_mins > 0:
+        return f"+{hours} óra {rem_mins} perc"
+    elif hours > 0:
+        return f"+{hours} óra"
+    else:
+        return f"+{rem_mins} perc"
+
+
 def get_sheets_payload() -> Dict[str, List[List[Any]]]:
     """Extract and format all database records into structured sheets/tabs."""
     conn = sqlite3.connect(DB_PATH)
@@ -47,7 +66,7 @@ def get_sheets_payload() -> Dict[str, List[List[Any]]]:
             r["art_title"],
             r["art_url"],
             f"{round(r['similarity_score'] * 100, 1)}%",
-            r["latency_minutes"],
+            format_latency_hu(r["latency_minutes"]),
             "IGEN" if r["has_mti_citation"] else "NEM",
         ])
 
@@ -139,7 +158,7 @@ def get_sheets_payload() -> Dict[str, List[List[Any]]]:
         total = r["total_articles"]
         cited = r["mti_cited"] or 0
         ratio = f"{round((cited / total) * 100, 1)}%" if total > 0 else "0%"
-        avg_lat = f"+{int(r['avg_latency'])} perc" if r["avg_latency"] else "-"
+        avg_lat = format_latency_hu(r["avg_latency"]) if r["avg_latency"] else "-"
         stats_rows.append([
             r["name"],
             total,
