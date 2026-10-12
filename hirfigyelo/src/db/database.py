@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS mti_news (
     published_at DATETIME NOT NULL,
     scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_hot BOOLEAN DEFAULT 1,
+    is_updated BOOLEAN DEFAULT 0,
     word_count INTEGER
 );
 

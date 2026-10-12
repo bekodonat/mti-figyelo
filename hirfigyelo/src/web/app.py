@@ -27,7 +27,7 @@ def index():
     clusters_query = """
     SELECT 
         m.id as mti_id, m.title as mti_title, m.lead as mti_lead, m.published_at as mti_pub,
-        m.url as mti_url, m.is_hot, m.word_count as mti_words,
+        m.url as mti_url, m.is_hot, m.is_updated, m.word_count as mti_words,
         COUNT(mt.id) as match_count
     FROM mti_news m
     LEFT JOIN matches mt ON m.id = mt.mti_id

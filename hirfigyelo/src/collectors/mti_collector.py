@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -144,6 +145,32 @@ def discover_mti_article_urls(client: Optional[httpx.Client] = None) -> List[str
     return discovered
 
 
+HUN_MONTHS = {
+    "január": 1, "február": 2, "március": 3, "április": 4, "május": 5, "június": 6,
+    "július": 7, "augusztus": 8, "szeptember": 9, "október": 10, "november": 11, "december": 12
+}
+
+
+def parse_mti_html_date(html_text: str) -> Optional[str]:
+    """Parse exact Hungarian date and time from MTI HTML, e.g. '2026. október 12., hétfő 13:46'."""
+    if not html_text:
+        return None
+    m = re.search(
+        r"(\d{4})\.\s*([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]+)\s*(\d{1,2})\.\s*,\s*[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]+\s*(\d{1,2}):(\d{2})",
+        html_text
+    )
+    if m:
+        year, month_name, day, hour, minute = m.groups()
+        month = HUN_MONTHS.get(month_name.lower())
+        if month:
+            try:
+                dt = datetime(int(year), int(month), int(day), int(hour), int(minute))
+                return dt.strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                pass
+    return None
+
+
 def fetch_and_parse_mti_article(url: str, client: Optional[httpx.Client] = None) -> Optional[Dict[str, Any]]:
     """Fetch MTI article and extract clean metadata and content using trafilatura."""
     try:
@@ -173,15 +200,21 @@ def fetch_and_parse_mti_article(url: str, client: Optional[httpx.Client] = None)
         if not title or not raw_text:
             return None
 
-        # Determine published date
-        raw_date = data.get("date")
-        if raw_date:
-            try:
-                pub_date = date_parser.parse(raw_date).strftime("%Y-%m-%d %H:%M:%S")
-            except Exception:
+        # Determine published date and time
+        # Priority: parse exact time from MTI Hungarian date string in HTML: "2026. október 12., hétfő 13:46"
+        pub_date = parse_mti_html_date(html)
+        if not pub_date:
+            raw_date = data.get("date")
+            if raw_date:
+                try:
+                    pub_date = date_parser.parse(raw_date).strftime("%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    pub_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            else:
                 pub_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            pub_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Detect "Frissült" / "Cikkünk frissül" badge
+        is_updated = 1 if re.search(r"\b(?:frissült|cikkünk frissül|frissítve)\b", html, re.IGNORECASE) else 0
 
         # Create a stable guid
         guid = hashlib.sha256(url.encode("utf-8")).hexdigest()
@@ -200,6 +233,7 @@ def fetch_and_parse_mti_article(url: str, client: Optional[httpx.Client] = None)
             "content_raw": raw_text,
             "published_at": pub_date,
             "is_hot": 1,
+            "is_updated": is_updated,
             "word_count": word_count,
         }
     except Exception as e:
@@ -242,9 +276,13 @@ def run_mti_collector() -> Dict[str, int]:
 
                 conn.execute(
                     """
-                    INSERT INTO mti_news (guid, url, title, lead, content_raw, published_at, is_hot, word_count)
-                    VALUES (:guid, :url, :title, :lead, :content_raw, :published_at, :is_hot, :word_count)
-                    ON CONFLICT(guid) DO NOTHING;
+                    INSERT INTO mti_news (guid, url, title, lead, content_raw, published_at, is_hot, is_updated, word_count)
+                    VALUES (:guid, :url, :title, :lead, :content_raw, :published_at, :is_hot, :is_updated, :word_count)
+                    ON CONFLICT(guid) DO UPDATE SET 
+                        published_at = excluded.published_at,
+                        is_updated = excluded.is_updated,
+                        lead = excluded.lead,
+                        content_raw = excluded.content_raw;
                     """,
                     article_data,
                 )

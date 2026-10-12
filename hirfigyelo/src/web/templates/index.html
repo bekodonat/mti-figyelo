@@ -133,6 +133,9 @@
                                     MTI Referencia
                                 </span>
                                 <span class="text-xs text-slate-400">{{ cluster.mti.mti_pub }}</span>
+                                {% if cluster.mti.is_updated %}
+                                <span class="px-1.5 py-0.5 text-[10px] rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40">FRISSÜLT</span>
+                                {% endif %}
                                 {% if cluster.mti.is_hot %}
                                 <span class="px-1.5 py-0.5 text-[10px] rounded bg-emerald-500/20 text-emerald-400 font-medium">HOT (12h)</span>
                                 {% endif %}
