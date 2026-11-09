@@ -1,12 +1,7 @@
 name: Hírfigyelő és Google Sheet Szinkronizáció
 
 on:
-  schedule:
-    # Nappal (05:00 - 22:00 UTC, azaz 06:00 - 23:00 magyar idő szerint) félóránként (12 és 42 perckor)
-    - cron: '12,42 5-22 * * *'
-    # Éjszaka (23:00 - 04:00 UTC, azaz 00:00 - 05:00 magyar idő szerint) óránként (25 perckor)
-    - cron: '25 23,0-4 * * *'
-  workflow_dispatch: # Kézi indítás lehetősége a GitHub webes felületéről
+  workflow_dispatch: # Kizárólag a Google Apps Script vagy kézi indítás vezérli
 
 permissions:
   contents: write
