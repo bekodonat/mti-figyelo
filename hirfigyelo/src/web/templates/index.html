@@ -31,9 +31,13 @@
                     <i class="fa-regular fa-clock text-indigo-400"></i>
                     <span>Utolsó frissítés: <strong class="text-white font-medium ml-1" id="lastUpdatedBadge">{{ stats.last_updated }}</strong></span>
                 </div>
-                <button id="runPipelineBtn" onclick="triggerPipeline()" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 transition shadow-sm hover:shadow-indigo-500/20 active:scale-95">
+                <button id="syncCloudBtn" onclick="syncCloudDb()" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-500 transition shadow-sm hover:shadow-emerald-500/20 active:scale-95">
+                    <i id="syncCloudIcon" class="fa-solid fa-cloud-arrow-down mr-2"></i>
+                    <span id="syncCloudText">Szinkronizálás a Felhőből</span>
+                </button>
+                <button id="runPipelineBtn" onclick="triggerPipeline()" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-lg text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition shadow-sm active:scale-95">
                     <i id="pipelineIcon" class="fa-solid fa-arrows-rotate mr-2"></i>
-                    <span>Pipeline Frissítése Most</span>
+                    <span>Helyi Pipeline</span>
                 </button>
             </div>
         </div>
@@ -477,6 +481,31 @@
             });
 
             cards.forEach(card => container.appendChild(card));
+        }
+
+        async function syncCloudDb() {
+            const btn = document.getElementById('syncCloudBtn');
+            const icon = document.getElementById('syncCloudIcon');
+            const text = document.getElementById('syncCloudText');
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+            icon.classList.remove('fa-cloud-arrow-down');
+            icon.classList.add('fa-arrows-rotate', 'fa-spin');
+            text.innerText = "Szinkronizálás...";
+
+            try {
+                const res = await fetch('/api/sync-cloud', { method: 'POST' });
+                const data = await res.json();
+                location.reload();
+            } catch (e) {
+                alert("Hálózati hiba a felhő szinkronizálásakor.");
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+                icon.classList.add('fa-cloud-arrow-down');
+                icon.classList.remove('fa-arrows-rotate', 'fa-spin');
+                text.innerText = "Szinkronizálás a Felhőből";
+            }
         }
 
         async function triggerPipeline() {

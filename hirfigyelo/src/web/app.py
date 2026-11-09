@@ -1,5 +1,7 @@
 import os
 import sqlite3
+import subprocess
+import time
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify
@@ -10,6 +12,29 @@ from config.settings import DB_PATH
 from run_pipeline import main as run_pipeline_cycle, get_pipeline_summary
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+
+_LAST_PULL_TS = 0
+
+
+def sync_from_git(force=False):
+    """Automatically fetch the latest database from GitHub Actions."""
+    global _LAST_PULL_TS
+    now = time.time()
+    if force or (now - _LAST_PULL_TS > 30):
+        try:
+            repo_root = Path(__file__).resolve().parent.parent.parent
+            res = subprocess.run(
+                ["git", "pull", "origin", "main", "--rebase"],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            _LAST_PULL_TS = now
+            return True, res.stdout.strip()
+        except Exception as e:
+            return False, str(e)
+    return False, "Nemrég volt szinkronizálva."
 
 
 @app.template_filter("format_latency")
@@ -40,6 +65,7 @@ def get_db_connection():
 
 @app.route("/")
 def index():
+    sync_from_git(force=False)
     stats = get_pipeline_summary()
     conn = get_db_connection()
 
@@ -222,6 +248,17 @@ def api_run_pipeline():
         return jsonify({"status": "success", "stats": stats})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/sync-cloud", methods=["POST", "GET"])
+def api_sync_cloud():
+    success, msg = sync_from_git(force=True)
+    stats = get_pipeline_summary()
+    return jsonify({
+        "status": "success" if success else "info",
+        "message": msg,
+        "stats": stats
+    })
 
 
 if __name__ == "__main__":
