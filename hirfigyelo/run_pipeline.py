@@ -64,6 +64,16 @@ def get_pipeline_summary() -> dict:
 
 def main():
     start_time = time.time()
+
+    # Ellenőrzés: A gyűjtési időszak 2026. november 15. 23:59:59-kor zárul
+    cutoff_date = datetime(2026, 11, 15, 23, 59, 59)
+    if datetime.now() > cutoff_date:
+        logger.info("=" * 60)
+        logger.info("A megfigyelési időszak (2026. november 9 - 15.) lezárult.")
+        logger.info("A pipeline nem végez új scrapinget, az adatbázis zárolva van a leadáshoz.")
+        logger.info("=" * 60)
+        return
+
     logger.info("=" * 60)
     logger.info(f"Hírfigyelő Pipeline indítása: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("=" * 60)
