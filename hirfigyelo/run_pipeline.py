@@ -91,7 +91,7 @@ def main():
     match_res = run_matching_engine()
 
     # 4. Google Sheet Sync / CSV Export
-    logger.info("[4/4] Adatok szinkronizálása a Google Sheet / táblázat felé...")
+    logger.info("[4/5] Adatok szinkronizálása a Google Sheet / táblázat felé...")
     from src.sync.sheets_sync import sync_to_google_sheet_webhook, export_to_csv_folder
     from config.settings import GOOGLE_SHEET_WEBHOOK_URL
 
@@ -105,6 +105,15 @@ def main():
     else:
         export_to_csv_folder()
         logger.info("Helyi CSV export frissítve a data/sheets_export mappában (Webhook beállításra vár).")
+
+    # 5. Static Dashboard Generation for GitHub Pages
+    logger.info("[5/5] Publikus webes dashboard generálása (docs/index.html)...")
+    try:
+        from src.web.export_static import generate_static_site
+        generate_static_site()
+        logger.info("Publikus GitHub Pages weboldal sikeresen frissítve.")
+    except Exception as e:
+        logger.warning(f"Nem sikerült a statikus weboldal generálása: {e}")
 
     elapsed = time.time() - start_time
     stats = get_pipeline_summary()

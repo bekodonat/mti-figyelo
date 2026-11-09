@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hírfigyelő & Mutáció Tracker | AI és Társadalomtudomány</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-newspaper text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white">Media Framing & Mutation Tracker</h1>
+                    <p class="text-xs text-slate-400">AI és Társadalomtudomány Kutatási Adatbázis (2026. nov. 9–15.)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2 text-xs text-slate-300 bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <i class="fa-regular fa-clock text-indigo-400 ml-1"></i>
+                    <span>Frissítve: <strong class="text-white font-medium ml-1">{{ stats.last_updated }}</strong></span>
+                </div>
+                <div class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+                    <i class="fa-solid fa-cloud mr-1.5"></i>
+                    <span>Élő Felhős Dashboard</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Stat KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Figyelt Portálok</span>
+                    <i class="fa-solid fa-globe text-indigo-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white mt-2">{{ stats.outlets }}</div>
+                <p class="text-xs text-slate-400 mt-1">Index, Telex, 444, Origo stb.</p>
+            </div>
+
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Összes Letöltött Cikk</span>
+                    <i class="fa-solid fa-file-lines text-emerald-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-emerald-400 mt-2">{{ stats.articles_total }}</div>
+                <p class="text-xs text-slate-400 mt-1"><span class="text-emerald-300 font-medium">{{ stats.articles_mti_cited }}</span> MTI-t hivatkozó</p>
+            </div>
+
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">MTI Alaphírek</span>
+                    <i class="fa-solid fa-tower-broadcast text-amber-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-amber-400 mt-2">{{ stats.mti_total }}</div>
+                <p class="text-xs text-slate-400 mt-1">{{ stats.mti_hot }} jelenleg aktív (12h hot)</p>
+            </div>
+
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Igazolt Hírcsaládok</span>
+                    <i class="fa-solid fa-diagram-project text-purple-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-purple-400 mt-2">{{ stats.matches_total }}</div>
+                <p class="text-xs text-slate-400 mt-1">Vektorizált mutáció-pár</p>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="border-b border-slate-800 flex space-x-8">
+            <button onclick="switchTab('clusters')" id="tab-btn-clusters" class="pb-3 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400 flex items-center space-x-2">
+                <i class="fa-solid fa-diagram-project"></i>
+                <span>Hírcsaládok & Mutációk (Klaszterek)</span>
+                <span class="ml-1 px-2 py-0.5 text-xs rounded-full bg-indigo-500/20 text-indigo-300">{{ clusters|length }}</span>
+            </button>
+            <button onclick="switchTab('articles')" id="tab-btn-articles" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Minden Cikk Böngészése</span>
+            </button>
+            <button onclick="switchTab('stats')" id="tab-btn-stats" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Portál Statisztikák</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: Clusters & Mutations -->
+        <div id="tab-clusters" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-base font-semibold text-white">Azonosított MTI Hírcsaládok</h2>
+                    <p class="text-xs text-slate-400">Az MTI nyers közleményei és az azokra épülő portálcikkek egymás mellé állítva.</p>
+                </div>
+
+                <!-- Sorter Dropdown -->
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-xs text-slate-400 flex items-center">
+                        <i class="fa-solid fa-arrow-down-wide-short mr-1.5 text-indigo-400"></i> Rendezés:
+                    </span>
+                    <select id="clusterSortSelect" onchange="sortClusters(this.value)" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm cursor-pointer">
+                        <option value="relevance">⭐ Legrelevánsabb (Újabb + legtöbb hivatkozás)</option>
+                        <option value="matches_desc">🔥 Legtöbb hivatkozás</option>
+                        <option value="newest">🕒 Legújabb MTI hír elöl</option>
+                        <option value="oldest">🕰️ Legrégebbi MTI hír elöl</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="clustersListContainer" class="space-y-4">
+                {% for cluster in clusters %}
+                <div class="cluster-card bg-slate-800/40 border border-slate-700/60 rounded-xl overflow-hidden transition"
+                     data-relevance="{{ cluster.relevance_score }}"
+                     data-matches="{{ cluster.matches|length }}"
+                     data-pub="{{ cluster.mti.mti_pub }}">
+                    <!-- Root MTI Header -->
+                    <div class="bg-slate-800/90 px-6 py-4 border-b border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide border border-amber-500/30">
+                                    MTI Referencia
+                                </span>
+                                <span class="text-xs text-slate-400">{{ cluster.mti.mti_pub }}</span>
+                                {% if cluster.mti.is_updated %}
+                                <span class="px-1.5 py-0.5 text-[10px] rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40">FRISSÜLT</span>
+                                {% endif %}
+                                {% if cluster.mti.is_hot %}
+                                <span class="px-1.5 py-0.5 text-[10px] rounded bg-emerald-500/20 text-emerald-400 font-medium">HOT (12h)</span>
+                                {% endif %}
+                            </div>
+                            <h3 class="text-lg font-semibold text-white leading-snug">{{ cluster.mti.mti_title }}</h3>
+                        </div>
+                        <div class="flex items-center space-x-3 flex-shrink-0">
+                            <button onclick="viewMtiArticle({{ cluster.mti.mti_id }})" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-file-lines"></i>
+                                <span>MTI hír olvasása</span>
+                            </button>
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+                                <i class="fa-solid fa-share-nodes mr-1.5"></i> {{ cluster.matches|length }} átvétel
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- MTI Lead excerpt -->
+                    <div class="px-6 py-3 bg-slate-900/40 text-xs text-slate-300 border-b border-slate-800/80 italic">
+                        "{{ cluster.mti.mti_lead }}"
+                    </div>
+
+                    <!-- Matched Outlet Articles -->
+                    {% if cluster.matches %}
+                    <div class="divide-y divide-slate-800/60 bg-slate-900/20">
+                        {% for match in cluster.matches %}
+                        <div class="px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-slate-800/30 transition">
+                            <div class="space-y-1 flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-0.5 text-xs font-bold rounded bg-slate-700 text-slate-200">
+                                        {{ match.outlet_name }}
+                                    </span>
+                                    {% if match.has_mti_citation %}
+                                    <span class="text-[10px] text-emerald-400 font-medium flex items-center">
+                                        <i class="fa-solid fa-check mr-1"></i> MTI hivatkozva
+                                    </span>
+                                    {% endif %}
+                                    <span class="text-xs text-slate-500">{{ match.published_at }}</span>
+                                </div>
+                                <a href="{{ match.url }}" target="_blank" class="text-sm font-medium text-slate-200 hover:text-indigo-400 transition flex items-center gap-1.5">
+                                    <span>{{ match.title }}</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500"></i>
+                                </a>
+                            </div>
+
+                            <!-- Metrics: Similarity & Latency -->
+                            <div class="flex items-center space-x-4 flex-shrink-0">
+                                <div class="text-right">
+                                    <div class="text-xs font-bold text-slate-200">{{ (match.similarity_score * 100)|round(0)|int }}%</div>
+                                    <div class="text-[10px] text-slate-500">Hasonlóság</div>
+                                </div>
+                                <div class="w-16 bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-indigo-500 h-full" style="width: {{ match.similarity_score * 100 }}%"></div>
+                                </div>
+                                <div class="text-right pl-2">
+                                    <div class="text-xs font-bold text-amber-400">{{ match.latency_minutes|format_latency }}</div>
+                                    <div class="text-[10px] text-slate-500">Reakcióidő</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="px-6 py-4 text-xs text-slate-500">
+                        Ehhez az MTI hírhez még nem érkezett igazolt átvétel a portálokról.
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- TAB 2: All Articles Explorer -->
+        <div id="tab-articles" class="hidden space-y-6">
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="flex flex-wrap gap-3 items-center w-full md:w-auto">
+                    <!-- Outlet filter -->
+                    <select id="outletFilter" onchange="renderArticles(1)" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <option value="">Minden portál</option>
+                        {% for o in outlets %}
+                        <option value="{{ o.id }}">{{ o.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- MTI citation filter -->
+                    <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="mtiFilter" onchange="renderArticles(1)" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0">
+                        <span>Csak MTI-forrásjelöléssel</span>
+                    </label>
+                </div>
+
+                <!-- Search -->
+                <div class="w-full md:w-72 relative">
+                    <input type="text" id="searchInput" oninput="handleSearch(event)" placeholder="Keresés címben / szövegben..." class="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+                </div>
+            </div>
+
+            <!-- Articles Table -->
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl overflow-hidden shadow">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800/90 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Portál</th>
+                                <th class="px-6 py-3">Cím</th>
+                                <th class="px-6 py-3">Dátum</th>
+                                <th class="px-6 py-3">MTI Forrás</th>
+                                <th class="px-6 py-3 text-right">Művelet</th>
+                            </tr>
+                        </thead>
+                        <tbody id="articlesTableBody" class="divide-y divide-slate-800/80 text-slate-300">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 bg-slate-800/60 border-t border-slate-800 flex items-center justify-between">
+                    <div class="text-xs text-slate-400" id="paginationInfo">Betöltés...</div>
+                    <div class="flex space-x-2">
+                        <button id="prevPageBtn" onclick="changePage(-1)" class="px-3 py-1 rounded bg-slate-700 text-slate-200 text-xs hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed">Előző</button>
+                        <button id="nextPageBtn" onclick="changePage(1)" class="px-3 py-1 rounded bg-slate-700 text-slate-200 text-xs hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed">Következő</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Portal Statistics -->
+        <div id="tab-stats" class="hidden space-y-6">
+            <div>
+                <h2 class="text-base font-semibold text-white">Portál Összehasonlítás</h2>
+                <p class="text-xs text-slate-400">Az egyes portálok cikkszáma, MTI-használati aránya és átlagos reakcióideje az MTI-hír megjelenése után.</p>
+            </div>
+
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl overflow-hidden shadow">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800/90 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Portál</th>
+                                <th class="px-6 py-3 text-right">Összes Cikk</th>
+                                <th class="px-6 py-3 text-right">Kifejezett MTI Hivatkozás</th>
+                                <th class="px-6 py-3 text-right">Párosított Mutáció</th>
+                                <th class="px-6 py-3 text-right">MTI Arány</th>
+                                <th class="px-6 py-3 text-right">Átlagos Késleltetés</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/80 text-slate-300">
+                            {% for row in outlet_stats %}
+                            <tr class="hover:bg-slate-800/30">
+                                <td class="px-6 py-3 font-semibold text-white">{{ row.name }}</td>
+                                <td class="px-6 py-3 text-right font-medium">{{ row.total_articles }}</td>
+                                <td class="px-6 py-3 text-right text-emerald-400 font-medium">{{ row.mti_cited }}</td>
+                                <td class="px-6 py-3 text-right text-purple-400 font-medium">{{ row.matched_count }}</td>
+                                <td class="px-6 py-3 text-right font-mono">
+                                    {% if row.total_articles > 0 %}
+                                    {{ ((row.mti_cited / row.total_articles) * 100)|round(1) }}%
+                                    {% else %}
+                                    0%
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-3 text-right text-amber-400 font-medium">
+                                    {{ row.avg_latency|format_latency }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal for Article Detail -->
+    <div id="articleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                    <span id="modalOutlet" class="text-xs font-bold text-indigo-400 uppercase tracking-wide"></span>
+                    <h3 id="modalTitle" class="text-lg font-bold text-white mt-1"></h3>
+                    <p id="modalDate" class="text-xs text-slate-400 mt-0.5"></p>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="px-6 py-6 overflow-y-auto space-y-4 text-sm text-slate-300 leading-relaxed font-sans" id="modalBody">
+                <!-- Content -->
+            </div>
+            <div class="px-6 py-3 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-xs">
+                <a id="modalUrl" href="#" target="_blank" class="text-indigo-400 hover:underline flex items-center">
+                    <span>Eredeti cikk megnyitása a weboldalon</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px]"></i>
+                </a>
+                <button onclick="closeModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium">Bezárás</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allArticles = {{ articles_json|safe }};
+        const mtiNewsMap = {{ mti_json|safe }};
+        let currentPage = 1;
+        const perPage = 30;
+        let filteredArticles = [...allArticles];
+
+        function switchTab(tabId) {
+            ['clusters', 'articles', 'stats'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('tab-btn-' + t).classList.remove('border-indigo-500', 'text-indigo-400');
+                document.getElementById('tab-btn-' + t).classList.add('border-transparent', 'text-slate-400');
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-btn-' + tabId).classList.add('border-indigo-500', 'text-indigo-400');
+            document.getElementById('tab-btn-' + tabId).classList.remove('border-transparent', 'text-slate-400');
+
+            if (tabId === 'articles') {
+                renderArticles(currentPage);
+            }
+        }
+
+        function renderArticles(page = 1) {
+            currentPage = page;
+            const outletId = document.getElementById('outletFilter').value;
+            const mtiOnly = document.getElementById('mtiFilter').checked;
+            const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+
+            filteredArticles = allArticles.filter(a => {
+                if (outletId && String(a.outlet_id) !== String(outletId)) return false;
+                if (mtiOnly && !a.has_mti_citation) return false;
+                if (search) {
+                    const titleMatch = (a.title || '').toLowerCase().includes(search);
+                    const leadMatch = (a.lead || '').toLowerCase().includes(search);
+                    if (!titleMatch && !leadMatch) return false;
+                }
+                return true;
+            });
+
+            const tbody = document.getElementById('articlesTableBody');
+            tbody.innerHTML = '';
+
+            const startIdx = (currentPage - 1) * perPage;
+            const pageItems = filteredArticles.slice(startIdx, startIdx + perPage);
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Nincs a szűrésnek megfelelő cikk.</td></tr>`;
+            } else {
+                pageItems.forEach(a => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-800/40 transition';
+                    tr.innerHTML = `
+                        <td class="px-6 py-3 font-semibold text-slate-200">${a.outlet_name}</td>
+                        <td class="px-6 py-3">
+                            <div class="font-medium text-white max-w-lg truncate">${a.title}</div>
+                            <div class="text-[11px] text-slate-500 truncate max-w-lg">${a.lead || ''}</div>
+                        </td>
+                        <td class="px-6 py-3 text-slate-400 whitespace-nowrap">${a.published_at || '-'}</td>
+                        <td class="px-6 py-3">
+                            ${a.has_mti_citation ? 
+                                `<span class="px-2 py-0.5 text-[10px] rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">MTI</span>` : 
+                                `<span class="text-slate-600">-</span>`
+                            }
+                        </td>
+                        <td class="px-6 py-3 text-right whitespace-nowrap">
+                            <button onclick="viewArticle(${a.id})" class="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium">
+                                Megtekintés
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const total = filteredArticles.length;
+            const start = total > 0 ? startIdx + 1 : 0;
+            const end = Math.min(startIdx + perPage, total);
+            document.getElementById('paginationInfo').innerText = `${total} cikkből ${start} - ${end}`;
+            document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+            document.getElementById('nextPageBtn').disabled = end >= total;
+        }
+
+        let searchTimeout = null;
+        function handleSearch(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                renderArticles(1);
+            }, 250);
+        }
+
+        function changePage(delta) {
+            renderArticles(currentPage + delta);
+        }
+
+        function viewArticle(id) {
+            const a = allArticles.find(x => x.id === id);
+            if (!a) return;
+            document.getElementById('modalOutlet').innerText = a.outlet_name;
+            document.getElementById('modalTitle').innerText = a.title;
+            document.getElementById('modalDate').innerText = `${a.published_at || ''} (${a.word_count || 0} szó)`;
+            document.getElementById('modalUrl').href = a.url;
+
+            let bodyHtml = '';
+            if (a.lead) {
+                bodyHtml += `<p class="font-semibold text-slate-200">${a.lead}</p>`;
+            }
+            if (a.citation_excerpt) {
+                bodyHtml += `<div class="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-lg text-emerald-300 text-xs">
+                    <strong>MTI hivatkozás szövegrésze:</strong> "${a.citation_excerpt}"
+                </div>`;
+            }
+            bodyHtml += `<p class="text-xs text-slate-400">A cikk teljes szövege az eredeti portálon érhető el az alábbi hivatkozásra kattintva.</p>`;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('articleModal').classList.remove('hidden');
+        }
+
+        function viewMtiArticle(id) {
+            const m = mtiNewsMap[id];
+            if (!m) return;
+            document.getElementById('modalOutlet').innerText = 'MTI (Magyar Távirati Iroda)';
+            document.getElementById('modalTitle').innerText = m.mti_title;
+            document.getElementById('modalDate').innerText = `${m.mti_pub || ''} (${m.mti_words || 0} szó)`;
+            document.getElementById('modalUrl').href = m.mti_url;
+
+            let bodyHtml = `<p class="font-semibold text-slate-200">${m.mti_lead || ''}</p>`;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('articleModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('articleModal').classList.add('hidden');
+        }
+
+        function sortClusters(criteria) {
+            const container = document.getElementById('clustersListContainer');
+            const cards = Array.from(container.getElementsByClassName('cluster-card'));
+
+            cards.sort((a, b) => {
+                if (criteria === 'relevance') {
+                    return parseFloat(b.getAttribute('data-relevance') || 0) - parseFloat(a.getAttribute('data-relevance') || 0);
+                } else if (criteria === 'matches_desc') {
+                    return parseInt(b.getAttribute('data-matches') || 0) - parseInt(a.getAttribute('data-matches') || 0);
+                } else if (criteria === 'newest') {
+                    return (b.getAttribute('data-pub') || '').localeCompare(a.getAttribute('data-pub') || '');
+                } else if (criteria === 'oldest') {
+                    return (a.getAttribute('data-pub') || '').localeCompare(b.getAttribute('data-pub') || '');
+                }
+                return 0;
+            });
+
+            cards.forEach(card => container.appendChild(card));
+        }
+
+        // Initialize articles tab
+        renderArticles(1);
+    </script>
+</body>
+</html>

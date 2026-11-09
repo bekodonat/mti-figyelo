@@ -33,11 +33,11 @@ jobs:
           cd hirfigyelo
           python run_pipeline.py
 
-      - name: Adatbázis mentése a GitHub repóba (Git Scraping)
+      - name: Adatbázis és Weboldal mentése a GitHub repóba (Git Scraping)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add hirfigyelo/data/news_database.db
+          git add hirfigyelo/data/news_database.db docs/
           if git diff --staged --quiet; then
             echo "Nincs új adat mentésre."
           else
