@@ -1,0 +1,16 @@
+id,slug,name,domain,rss_url,active,created_at
+1,index,Index,index.hu,https://index.hu/24ora/rss/,1,2026-11-09 11:24:30
+2,24hu,24.hu,24.hu,https://24.hu/feed/,1,2026-11-09 11:24:30
+3,telex,Telex,telex.hu,https://telex.hu/rss,1,2026-11-09 11:24:30
+4,portfolio,Portfolio,portfolio.hu,https://www.portfolio.hu/rss/all.xml,1,2026-11-09 11:24:30
+5,blikk,Blikk,blikk.hu,https://www.blikk.hu/rss,1,2026-11-09 11:24:30
+6,origo,Origo,origo.hu,https://www.origo.hu/contentpartner/rss/origoall/origo.xml,1,2026-11-09 11:24:30
+7,hvg,HVG,hvg.hu,https://hvg.hu/rss,1,2026-11-09 11:24:30
+8,444,444,444.hu,https://444.hu/feed,1,2026-11-09 11:24:30
+9,borsonline,Bors,borsonline.hu,https://www.borsonline.hu/rss,1,2026-11-09 11:24:30
+10,magyarnemzet,Magyar Nemzet,magyarnemzet.hu,https://magyarnemzet.hu/feed/,1,2026-11-09 11:24:30
+11,vg,Világgazdaság,vg.hu,https://www.vg.hu/feed/,1,2026-11-09 11:24:30
+12,infostart,Infostart,infostart.hu,https://infostart.hu/24ora/rss/,1,2026-11-09 11:24:30
+13,magyarhirlap,Magyar Hírlap,magyarhirlap.hu,https://www.magyarhirlap.hu/rss,1,2026-11-09 11:24:30
+14,nepszava,Népszava,nepszava.hu,https://nepszava.hu/feed/,1,2026-11-09 11:24:30
+15,168hu,168.hu,168.hu,https://168.hu/rss,1,2026-11-09 11:24:30

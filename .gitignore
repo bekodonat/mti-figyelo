@@ -1,0 +1,26 @@
+.DS_Store
+~$*
+.env*
+*.pem
+*.key
+*credentials*.json
+.venv/
+hirfigyelo/.venv/
+hirfigyelo/data/sheets_export/
+hirfigyelo/logs/
+__pycache__/
+hirfigyelo/**/__pycache__/
+
+# Archive packages
+*.zip
+2ora_bibo_6_skills_20261012/
+leadando/
+mti_figyelo_leadando_csomag/
+hirfigyelo/data/news_database_october_backup.db
+claude-skills/
+output/
+
+# Internal agent mirrors (skills/ is the canonical tracked directory)
+.agents/
+.gemini/
+hirfigyelo/data/
