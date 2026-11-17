@@ -153,14 +153,11 @@
             <div class="glass-panel p-6 sm:p-8 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-3 gap-2">
                     <div>
-                        <div class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider">Vizsgált médiumok köre (15 online hírportál)</div>
-                        <h3 class="text-lg font-bold text-white">A mintavételbe bevont magyar online szerkesztőségek és cikkszámaik</h3>
+                        <div class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider">Vizsgált médiumok köre</div>
+                        <h3 class="text-lg font-bold text-white">A mintavételbe bevont 15 magyar online hírportál</h3>
                     </div>
                     <span class="text-xs text-slate-300 bg-slate-900/90 px-3 py-1 border border-slate-700 font-mono">Összesen: 8 464 cikk</span>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed max-w-4xl">
-                    A lezárt 7 napos adatgyűjtési ciklusban (2026. november 9–15.) az alábbi 15 országos hírportál teljes cikktartalmát dolgoztuk fel folyamatos monitorozással:
-                </p>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-1">
                     <div class="p-3.5 bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 transition flex flex-col justify-between">
                         <div class="text-sm font-bold text-white flex items-center gap-2">
@@ -332,38 +329,74 @@
                 </div>
             </div>
 
-            <!-- Detailed Methodological Aspects (Kutatási szempontok mélyfúrása) -->
+            <!-- Detailed Methodological Aspects (Módszertani szempontrendszer és kódkönyv) -->
             <div class="glass-panel p-6 sm:p-8 space-y-5">
-                <div class="border-b border-white/10 pb-3">
-                    <div class="text-xs font-mono text-indigo-400 font-bold uppercase tracking-wider">Módszertani szempontrendszer</div>
-                    <h3 class="text-lg font-bold text-white">A kutatás részletes vizsgálati dimenziói</h3>
+                <div class="border-b border-white/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xs font-mono text-indigo-400 font-bold uppercase tracking-wider">Módszertani szempontrendszer és kódkönyv</div>
+                        <h3 class="text-lg font-bold text-white">A kutatás elméleti és operatív dimenziói</h3>
+                    </div>
+                    <span class="text-xs text-slate-400 font-mono">ParlLawSpeech tudományos standard</span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs text-slate-300">
-                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800">
-                        <strong class="text-blue-300 text-sm block font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-code-compare text-blue-400"></i> 1. Explicit vs. burkolt átvételek
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs text-slate-300">
+                    <!-- Card 1 -->
+                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800 hover:border-blue-500/40 transition">
+                        <strong class="text-blue-300 text-sm block font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-blue-400"></i> Elemzési egység (Unit of analysis)
                         </strong>
                         <p class="leading-relaxed">
-                            Megkülönböztetjük az <em>explicit MTI-hivatkozást</em> tartalmazó cikkeket (ahol a szövegben vagy impresszumban szerepel az MTI megnevezés) a <em>bizonyított MTI-átvételektől</em>. Utóbbiak azok a szövegek, amelyek matematikai szöveghasonlósággal összekapcsolhatók egy konkrét MTI kiadással. Ebből látható az újságírói etika (burkolt átvétel) és a passzív hírügynökségi függés mértéke.
+                            A kutatás két szinten határozza meg a megfigyelési egységet: az egyedi cikk szintjén az online médiumok és az MTI által közzétett önálló híranyagokat vizsgálja, átvételi szinten pedig a matematikai szöveghasonlósággal összekapcsolt MTI–portál cikkpárokat (klasztereket).
                         </p>
                     </div>
 
-                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800">
-                        <strong class="text-indigo-300 text-sm block font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> 2. Időbeli dinamika és hírdrótok
+                    <!-- Card 2 -->
+                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800 hover:border-blue-500/40 transition">
+                        <strong class="text-indigo-300 text-sm block font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-quote-left text-indigo-400"></i> Explicit és burkolt átvételek
                         </strong>
                         <p class="leading-relaxed">
-                            A publikációs időkülönbség (<code>latency_minutes</code>) mérése rámutat a szerkesztőségi munkafolyamatokra. A negatív látencia empirikus tény: a szerkesztőségek a fizetős MTI előfizetői drótfolyamból közvetlenül dolgoznak, ami percekkel megelőzi a nyilvános weboldali listázást.
+                            Megkülönbözteti az MTI-t forrásként nyíltan megnevező hivatkozásokat az olyan átvételektől, ahol a hírportál érdemben átvette az MTI szövegét ($\ge 0.40$ hasonlóság), de elhagyta a forrásmegjelölést. Ezzel mérhetővé válik az újságírói etika és a burkolt forráshasználat.
                         </p>
                     </div>
 
-                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800">
-                        <strong class="text-purple-300 text-sm block font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-tags text-purple-400"></i> 3. Kettős témabesorolás (Primary & Secondary)
+                    <!-- Card 3 -->
+                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800 hover:border-purple-500/40 transition">
+                        <strong class="text-purple-300 text-sm block font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-tags text-purple-400"></i> Elsődleges és másodlagos témák
                         </strong>
                         <p class="leading-relaxed">
-                            A komplex közéleti hírek ritkán sorolhatók egyetlen fiókba. Az adatbázis ezért minden MTI hírhez egy <em>elsődleges</em> és egy <em>másodlagos</em> CAP/MTA témakódot rendel (pl. kormányzati működés + gazdaságpolitika), így feltárható a leggyakoribb szakpolitikai átfedések struktúrája.
+                            A Comparative Agendas Project (CAP) és az MTA TK PTI 33 kategóriás kódkönyve alapján minden hírhez elsődleges és másodlagos témát rendel. Ez feltárja a komplex közéleti események átfedéseit (pl. pártpolitika és kormányzati működés összefonódása).
+                        </p>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800 hover:border-emerald-500/40 transition">
+                        <strong class="text-emerald-300 text-sm block font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-camera text-emerald-400"></i> Fotókreditek szűrése (PHOTO_ONLY)
+                        </strong>
+                        <p class="leading-relaxed">
+                            Szigorú döntési szabály zárja ki a tartalmi statisztikákból azokat a cikkeket, ahol az MTI megnevezése kizárólag illusztrációs fotókreditként jelenik meg a képaláírásban, miközben maga a szöveg önálló saját cikk (< 0.40 szövegegyezés).
+                        </p>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition">
+                        <strong class="text-cyan-300 text-sm block font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-pen-nib text-cyan-400"></i> Címátírási és stílusmutáció
+                        </strong>
+                        <p class="leading-relaxed">
+                            Rögzíti, hogy a szerkesztőségek szó szerint veszik-e át az eredeti közszolgálati címet, vagy saját szerkesztési irányelveik és olvasottság-maximalizálási (clickbait) szempontjaik szerint fogalmazzák újra a felütést az olvasók megszólítására.
+                        </p>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div class="space-y-2 p-4 bg-slate-900/60 border border-slate-800 hover:border-rose-500/40 transition">
+                        <strong class="text-rose-300 text-sm block font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced text-rose-400"></i> Szentiment- és framing-eltolódás
+                        </strong>
+                        <p class="leading-relaxed">
+                            Az intézményileg semleges hírügynökségi alaphanghoz (0) viszonyítva a cím és a lead összefüggő vizsgálatával azonosítja az érzelmi áthangolást: a negatív/dramatizált konfliktusélezést (-1) és a pozitív/hangsúlyozó sikernarratívát (+1).
                         </p>
                     </div>
                 </div>
